@@ -1,0 +1,34 @@
+{
+  "name": "cfn-msk",
+  "version": "1.0.0",
+  "description": "AWS MSK (Kafka Cluster) using two or three availability zones with public and private subnets. Cloudwatch logging enabled by default.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bundleDependencies": [
+    "@cfn-modules/vpc",
+    "@cfn-modules/client-sg"
+  ],
+  "dependencies": {
+    "@cfn-modules/client-sg": "1.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/nicklester/cfn-msk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nicklester/cfn-msk.git"
+  },
+  "author": "Nicholas Lester",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nicklester/cfn-msk/issues"
+  },
+  "homepage": "https://github.com/nicklester/cfn-msk#readme"
+}
+
+
+
+
+
