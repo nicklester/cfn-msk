@@ -112,7 +112,7 @@ No examples supplied
 		</tr>
 		<tr>
 		  <td>AlertingModule</td>
-		  <td>Stack name of alerting module</a></td>
+		  <td>Stack name of <a href="https://github.com/cfn-modules/alerting">alerting</a> module</a></td>
 		  <td></td>
 		  <td>false</td>
 		  <td></td>
