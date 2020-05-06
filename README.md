@@ -63,7 +63,7 @@ No examples supplied
   <tbody>
 		<tr>
 		  <td>VpcModule</td>
-		  <td>Stack name of <a href="https://www.npmjs.com/package/@cfn-modules/vpc">vpc module</a></td>
+		  <td>Stack name of <a href="https://www.npmjs.com/package/@cfn-modules/vpc">vpc</a> module</td>
 		  <td></td>
 		  <td>true</td>
 		  <td></td>
@@ -73,6 +73,27 @@ No examples supplied
 	      <td>Stack name of <a href="https://www.npmjs.com/package/@cfn-modules/client-sg">client-sg module</a> where traffic is allowed from on port 9092, 9095 and 2181 to the cluster</td>
 	      <td></td>
 	      <td>yes</td>
+	      <td></td>
+	    </tr>
+	    <tr>
+	      <td>KafkaVersion</td>
+	      <td>Version of Kafka Cluster to deploy</td>
+	      <td>2.2.1</td>
+	      <td></td>
+	      <td></td>
+	    </tr>
+	     <tr>
+	      <td>KmsKeyModule</td>
+	      <td><a href="https://github.com/cfn-modules/kms-key">kms-key</a> module to encrypt data in the cluster</td>
+	      <td></td>
+	      <td>false</td>
+	      <td></td>
+	    </tr>
+	    <tr>
+	      <td>BastionModule</td>
+	      <td><a href="https://github.com/cfn-modules/ssh-bastion">ssh-bastion</a> module to allow access over 9092 to the cluster</td>
+	      <td></td>
+	      <td>false</td>
 	      <td></td>
 	    </tr>
 	    <tr>
