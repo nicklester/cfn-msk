@@ -71,7 +71,7 @@ Parameters:
   ClientBrokerEncryption:
     Description: 'TLS, PLAINTEXT, TLS_PLAINTEXT'
     Type: String
-    Default: 'TLS_PLAINTEXT'
+    Default: 'TLS'
     AllowedValues: ['TLS', 'PLAINTEXT', 'TLS_PLAINTEXT']
   LogsRetentionInDays:
     Description: 'Specifies the number of days you want to retain log events in the specified log group.'
