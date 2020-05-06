@@ -27,6 +27,9 @@ Parameters:
   ClientSgModule:
     Description: 'Stack name of client-sg module.'
     Type: String
+  AlertingModule:
+    Description: 'Optional but recommended stack name of alerting module.'
+    Type: String
   KmsKeyModule:
     Description: 'Stack name of kms-key module.'
     Type: String
@@ -77,6 +80,7 @@ Parameters:
     AllowedValues: [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]
 Conditions:
   HasBastionModule: !Not [!Equals [!Ref BastionModule, '']]
+  HasAlertingModule: !Not [!Equals [!Ref AlertingModule, '']]
   HasTlsClientAuthentication: !Not [!Equals [!Ref TlsClientAuthentication, 0]]
   HasMSKConfiguration: !And 
     - !Not [!Equals [!Ref MSKConfigurationArn, '']]
@@ -116,6 +120,25 @@ Resources:
       FromPort: 9092
       ToPort: 9092
       SourceSecurityGroupId: {'Fn::ImportValue': !Sub '${BastionModule}-SecurityGroupId'}
+  AlarmOfflinePartitionsCount:
+    Condition: HasAlertingModule
+    Type: 'AWS::CloudWatch::Alarm'
+    Properties:
+      AlarmActions:
+      - 'Fn::ImportValue': !Sub '${AlertingModule}-Arn'
+      AlarmDescription: 'Offline partition count greater than 0 '
+      ComparisonOperator: LessThanThreshold
+      Dimensions:
+      - Name: ClusterName
+        Value: !Ref MSKCluster
+      EvaluationPeriods: 1
+      MetricName: OfflinePartitionsCount
+      Namespace: 'AWS/MSK'
+      OKActions:
+      - 'Fn::ImportValue': !Sub '${AlertingModule}-Arn'
+      Period: 120
+      Statistic: Average
+      Threshold: 1
   MSKCluster:
     Type: AWS::MSK::Cluster
     Properties:

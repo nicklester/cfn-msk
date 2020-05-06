@@ -111,6 +111,13 @@ No examples supplied
 		  <td>A multiple of subnet counts (2/3)</td>
 		</tr>
 		<tr>
+		  <td>AlertingModule</td>
+		  <td>Stack name of alerting module</a></td>
+		  <td></td>
+		  <td>false</td>
+		  <td></td>
+		</tr>
+		<tr>
 		  <td>InstanceType</td>
 		  <td>Aws Msk <a href="https://aws.amazon.com/msk/pricing/">Instance type</a> to launch</td>
 		  <td>kafka.t3.small</td>
