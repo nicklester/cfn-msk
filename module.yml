@@ -20,9 +20,21 @@ Parameters:
     Description: 'Number of kafka brokers to launch. Must be a multiple of number of subnets.'
     Type: Number
     Default: 2
+  KafkaVersion:
+    Description: 'Version of Kafka Cluster to deploy'
+    Type: String
+    Default: '2.2.1'
   ClientSgModule:
     Description: 'Stack name of client-sg module.'
     Type: String
+  KmsKeyModule:
+    Description: 'Stack name of kms-key module.'
+    Type: String
+    Default: ''
+  BastionModule:
+    Description: 'Optional but recommended stack name of module implementing Bastion.'
+    Type: String
+    Default: ''
   Use3Subnets:
     Description: 'Use three subnets if supported by the region and VPC'
     Type: String
@@ -64,11 +76,14 @@ Parameters:
     Default: 14
     AllowedValues: [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]
 Conditions:
+  HasBastionModule: !Not [!Equals [!Ref BastionModule, '']]
   HasTlsClientAuthentication: !Not [!Equals [!Ref TlsClientAuthentication, 0]]
   HasMSKConfiguration: !And 
     - !Not [!Equals [!Ref MSKConfigurationArn, '']]
     - !Not [!Equals [!Ref MSKConfigurationNumber, 0]]
   HasClientSubnetC: !Not [!Equals [!Ref Use3Subnets, 'false']]
+  HasKmsKeyModule: !Not [!Equals [!Ref KmsKeyModule, '']]
+  HasClientSgModule: !Not [!Equals [!Ref ClientSgModule, '']]
 Resources:
   LogGroup:
     Type: 'AWS::Logs::LogGroup'
@@ -92,6 +107,15 @@ Resources:
         ToPort: 2181
         SourceSecurityGroupId: {'Fn::ImportValue': !Sub '${ClientSgModule}-SecurityGroupId'}
       VpcId: {'Fn::ImportValue': !Sub '${VpcModule}-Id'}
+  SecurityGroupInKafkaFromBastion:
+    Condition: HasBastionModule
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref SecurityGroup
+      IpProtocol: tcp
+      FromPort: 9092
+      ToPort: 9092
+      SourceSecurityGroupId: {'Fn::ImportValue': !Sub '${BastionModule}-SecurityGroupId'}
   MSKCluster:
     Type: AWS::MSK::Cluster
     Properties:
@@ -104,8 +128,10 @@ Resources:
         - - Fn::ImportValue: !Sub "${VpcModule}-SubnetIdAPrivate"
           - Fn::ImportValue: !Sub "${VpcModule}-SubnetIdBPrivate"
         InstanceType: !Ref InstanceType
-        SecurityGroups: 
-          - !Ref SecurityGroup
+        SecurityGroups: !If
+        - HasClientSgModule
+        - - !Ref SecurityGroup
+        - !Ref "AWS::NoValue"
         StorageInfo: 
           EBSStorageInfo: 
             VolumeSize: !Ref EBSVolumeSize
@@ -126,8 +152,13 @@ Resources:
       EncryptionInfo:
         EncryptionInTransit:
           ClientBroker: !Ref ClientBrokerEncryption
-          InCluster: false 
-      KafkaVersion: 2.2.1
+          InCluster: true
+        EncryptionAtRest: !If
+          - HasKmsKeyModule
+          -
+            DataVolumeKMSKeyId: {'Fn::ImportValue': !Sub '${KmsKeyModule}-Arn'}
+          - !Ref 'AWS::NoValue'
+      KafkaVersion: !Ref KafkaVersion
       LoggingInfo: 
         BrokerLogs:
           CloudWatchLogs:
@@ -141,10 +172,6 @@ Outputs:
     Value: !Ref 'AWS::StackName'
     Export:
       Name: !Sub '${AWS::StackName}-Name'
-  MSKSecurityGroup:
-    Value: !Ref SecurityGroup
-    Export:
-      Name: !Sub '${AWS::StackName}-SecurityGroupName'
   ClusterName:
     Value: !Ref MSKCluster
     Export:

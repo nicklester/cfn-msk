@@ -8,7 +8,8 @@
   },
   "bundleDependencies": [
     "@cfn-modules/vpc",
-    "@cfn-modules/client-sg"
+    "@cfn-modules/client-sg",
+    "@cfn-modules/kms-key"
   ],
   "dependencies": {
     "@cfn-modules/client-sg": "1.0.0"

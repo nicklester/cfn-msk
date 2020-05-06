@@ -17,12 +17,17 @@ Resources:
       Parameters:
         VpcModule: !GetAtt 'Vpc.Outputs.StackName'
       TemplateURL: './node_modules/@cfn-modules/client-sg/module.yml'
+  Key:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: './node_modules/@cfn-modules/kms-key/module.yml'
   Msk:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
         BrokerCount: 2
-        ClientSgModule: !GetAtt 'ClientSg.Outputs.StackName'
+        KmsKeyModule: !GetAtt Key.Outputs.StackName
+        ClientSgModule1: !GetAtt 'ClientSg.Outputs.StackName'
         VpcModule: !GetAtt 'Vpc.Outputs.StackName'
         InstanceType: kafka.t3.small
       TemplateURL: './node_modules/cfn-msk/module.yml'

@@ -2,10 +2,6 @@
 
 AWS MSK (Kafka Cluster) using two or three availability zones with public and private subnets. Cloudwatch logging enabled by default.
 
-## Limitations
-
-* At present only CloudWatch logging is not enabled, nor is logging through Prometheus, but this is expected to be added in a subsequent version
-
 ## Install
 
 
@@ -144,3 +140,12 @@ No examples supplied
 		</tr>
 	</tbody>
 </table>
+
+## Limitations
+
+* At present only CloudWatch logging is enabled, nor is logging through Prometheus, but this is expected to be added in a subsequent version
+* Scalability. At present auto scaling is not provided by MSK service. Therefore this template will not support auto scaling.
+* There is no support for backups of an MSK Cluster.
+
+
+
