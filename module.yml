@@ -30,6 +30,7 @@ Parameters:
   AlertingModule:
     Description: 'Optional but recommended stack name of alerting module.'
     Type: String
+    Default: ''
   KmsKeyModule:
     Description: 'Stack name of kms-key module.'
     Type: String
