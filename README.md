@@ -105,7 +105,7 @@ No examples supplied
 		</tr>
 		<tr>
 		  <td>BrokerCount</td>
-		  <td>Number of Kafka Brokers to launch. Note this must be a multiple of number of subnets supplied below.</a></td>
+		  <td>Number of Kafka Brokers to launch. Note this must be a multiple of number of private subnets in VPC</a></td>
 		  <td>2</td>
 		  <td>true</td>
 		  <td>A multiple of subnet counts (2/3)</td>
