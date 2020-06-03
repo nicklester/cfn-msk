@@ -10,67 +10,53 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# cfn-modules:implements(ExposeArn)
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'cfn-modules: AWS MSK'
+Description: 'cfn-modules: MSK Cluster'
 Parameters:
   VpcModule:
     Description: 'Stack name of vpc module.'
     Type: String
-  BrokerCount:
-    Description: 'Number of kafka brokers to launch. Must be a multiple of number of subnets.'
-    Type: Number
-    Default: 2
-  KafkaVersion:
-    Description: 'Version of Kafka Cluster to deploy'
-    Type: String
-    Default: '2.2.1'
   ClientSgModule:
     Description: 'Stack name of client-sg module.'
     Type: String
-  AlertingModule:
-    Description: 'Optional but recommended stack name of alerting module.'
-    Type: String
-    Default: ''
   KmsKeyModule:
-    Description: 'Stack name of kms-key module.'
+    Description: 'Optional but recommended stack name of kms-key module.'
     Type: String
     Default: ''
   BastionModule:
     Description: 'Optional but recommended stack name of module implementing Bastion.'
     Type: String
     Default: ''
-  Use3Subnets:
-    Description: 'Use three subnets if supported by the region and VPC'
+  AlertingModule:
+    Description: 'Optional but recommended stack name of alerting module.'
     Type: String
-    Default: false
-    AllowedValues:
-    - true
-    - false
+    Default: ''
+  NumberOfBrokerNodes:
+    Description: 'The number of broker nodes you want in the Amazon MSK cluster. You can submit an update to increase the number of broker nodes in a cluster. Has to be a multiple of the private subnets in your VPC.'
+    Type: Number
+  KafkaVersion:
+    Description: 'The version of Apache Kafka.'
+    Type: String
+    Default: '2.2.1'
   InstanceType:
-    Description: 'AWS Instance size / type for broker'
+    Description: 'The type of Amazon EC2 instances to use for brokers.'
     Type: String
+    Default: 'kafka.t3.small'
   MSKConfigurationArn:
-    Description: 'The Amazon Resource Name (ARN) of the MSK configuration to use. For example, arn:aws:kafka:us-east-1:123456789012:configuration/example-configuration-name/abcdabcd-1234-abcd-1234-abcd123e8e8e-1.'
+    Description: 'Optional Amazon Resource Name (ARN) of the MSK configuration to use.'
     Type: String
     Default: ''
   MSKConfigurationNumber:
     Type: Number
-    Description: 'The revision of the Amazon MSK configuration to use'
+    Description: 'Optional revision of the Amazon MSK configuration to use (required if MSKConfigurationArn is set).'
     Default: 0
   EBSVolumeSize:
     Type: Number
     Description: 'The size in GiB of the EBS volume for the data drive on each broker node.'
     Default: 1
-  TlsClientAuthentication:
-    Description: 'Tls Client Authentication'
-    Type: Number
-    Default: 0
-  TlsArnList:
-    Description: 'Tls Certificate Arn List. Requires Tlc Client Authentication to be true'
-    Type: List<String>
-    Default: 'false'
   ClientBrokerEncryption:
-    Description: 'TLS, PLAINTEXT, TLS_PLAINTEXT'
+    Description: 'Indicates the encryption setting for data in transit between clients and brokers'
     Type: String
     Default: 'TLS'
     AllowedValues: ['TLS', 'PLAINTEXT', 'TLS_PLAINTEXT']
@@ -80,15 +66,10 @@ Parameters:
     Default: 14
     AllowedValues: [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]
 Conditions:
+  HasKmsKeyModule: !Not [!Equals [!Ref KmsKeyModule, '']]
   HasBastionModule: !Not [!Equals [!Ref BastionModule, '']]
   HasAlertingModule: !Not [!Equals [!Ref AlertingModule, '']]
-  HasTlsClientAuthentication: !Not [!Equals [!Ref TlsClientAuthentication, 0]]
-  HasMSKConfiguration: !And 
-    - !Not [!Equals [!Ref MSKConfigurationArn, '']]
-    - !Not [!Equals [!Ref MSKConfigurationNumber, 0]]
-  HasClientSubnetC: !Not [!Equals [!Ref Use3Subnets, 'false']]
-  HasKmsKeyModule: !Not [!Equals [!Ref KmsKeyModule, '']]
-  HasClientSgModule: !Not [!Equals [!Ref ClientSgModule, '']]
+  HasMSKConfiguration: !Not [!Equals [!Ref MSKConfigurationArn, '']]
 Resources:
   LogGroup:
     Type: 'AWS::Logs::LogGroup'
@@ -126,77 +107,60 @@ Resources:
     Type: 'AWS::CloudWatch::Alarm'
     Properties:
       AlarmActions:
-      - 'Fn::ImportValue': !Sub '${AlertingModule}-Arn'
+      - {'Fn::ImportValue': !Sub '${AlertingModule}-Arn'}
       AlarmDescription: 'Offline partition count greater than 0 '
       ComparisonOperator: LessThanThreshold
       Dimensions:
       - Name: ClusterName
-        Value: !Ref MSKCluster
+        Value: !Ref Cluster
       EvaluationPeriods: 1
       MetricName: OfflinePartitionsCount
       Namespace: 'AWS/MSK'
       OKActions:
-      - 'Fn::ImportValue': !Sub '${AlertingModule}-Arn'
-      Period: 120
-      Statistic: Average
+      - {'Fn::ImportValue': !Sub '${AlertingModule}-Arn'}
+      Period: 300
+      Statistic: Maximum
       Threshold: 1
-  MSKCluster:
-    Type: AWS::MSK::Cluster
+  Cluster:
+    Type: 'AWS::MSK::Cluster'
     Properties:
-      BrokerNodeGroupInfo: 
-        ClientSubnets: !If
-        - HasClientSubnetC
-        - - Fn::ImportValue: !Sub "${VpcModule}-SubnetIdAPrivate"
-          - Fn::ImportValue: !Sub "${VpcModule}-SubnetIdBPrivate"
-          - Fn::ImportValue: !Sub "${VpcModule}-SubnetIdCPrivate"
-        - - Fn::ImportValue: !Sub "${VpcModule}-SubnetIdAPrivate"
-          - Fn::ImportValue: !Sub "${VpcModule}-SubnetIdBPrivate"
+      BrokerNodeGroupInfo:
+        ClientSubnets: !Split [',', {'Fn::ImportValue': !Sub '${VpcModule}-SubnetIdsPrivate'}]
         InstanceType: !Ref InstanceType
-        SecurityGroups: !If
-        - HasClientSgModule
-        - - !Ref SecurityGroup
-        - !Ref "AWS::NoValue"
-        StorageInfo: 
-          EBSStorageInfo: 
+        SecurityGroups:
+        - !Ref SecurityGroup
+        StorageInfo:
+          EBSStorageInfo:
             VolumeSize: !Ref EBSVolumeSize
-      ClientAuthentication: 
-        !If
-          - HasTlsClientAuthentication
-          -
-            CertificateAuthorityArnList: !Ref TlsClientAuthentication
-          - !Ref "AWS::NoValue"
       ClusterName: !Sub '${AWS::StackName}'
-      ConfigurationInfo: 
-        !If
-          - HasMSKConfiguration
-          -
-            Arn: !Ref MSKConfigurationArn
-            Revision: !Ref MSKConfigurationNumber
-          - !Ref "AWS::NoValue"
+      ConfigurationInfo: !If
+      - HasMSKConfiguration
+      - Arn: !Ref MSKConfigurationArn
+        Revision: !Ref MSKConfigurationNumber
+      - !Ref 'AWS::NoValue'
       EncryptionInfo:
+        EncryptionAtRest: !If
+        - HasKmsKeyModule
+        - DataVolumeKMSKeyId: {'Fn::ImportValue': !Sub '${KmsKeyModule}-Arn'}
+        - !Ref 'AWS::NoValue'
         EncryptionInTransit:
           ClientBroker: !Ref ClientBrokerEncryption
           InCluster: true
-        EncryptionAtRest: !If
-          - HasKmsKeyModule
-          -
-            DataVolumeKMSKeyId: {'Fn::ImportValue': !Sub '${KmsKeyModule}-Arn'}
-          - !Ref 'AWS::NoValue'
       KafkaVersion: !Ref KafkaVersion
-      LoggingInfo: 
+      LoggingInfo:
         BrokerLogs:
           CloudWatchLogs:
             Enabled: true
             LogGroup: !Ref LogGroup
-      NumberOfBrokerNodes: !Ref BrokerCount
+      NumberOfBrokerNodes: !Ref NumberOfBrokerNodes
 Outputs:
+  ModuleId:
+    Value: 'msk-cluster'
   ModuleVersion:
     Value: '1.0.0'
   StackName:
     Value: !Ref 'AWS::StackName'
+  Arn:
+    Value: !Ref Cluster
     Export:
-      Name: !Sub '${AWS::StackName}-Name'
-  ClusterName:
-    Value: !Ref MSKCluster
-    Export:
-      Name: !Sub '${AWS::StackName}-ClusterName'
+      Name: !Sub '${AWS::StackName}-Arn'
