@@ -125,13 +125,13 @@ Resources:
   Cluster:
     Type: 'AWS::MSK::Cluster'
     Properties:
-      BrokerNodeGroupInfo: 
+      BrokerNodeGroupInfo:
         ClientSubnets: !Split [',', {'Fn::ImportValue': !Sub '${VpcModule}-SubnetIdsPrivate'}]
         InstanceType: !Ref InstanceType
         SecurityGroups:
         - !Ref SecurityGroup
-        StorageInfo: 
-          EBSStorageInfo: 
+        StorageInfo:
+          EBSStorageInfo:
             VolumeSize: !Ref EBSVolumeSize
       ClusterName: !Sub '${AWS::StackName}'
       ConfigurationInfo: !If
@@ -148,14 +148,14 @@ Resources:
           ClientBroker: !Ref ClientBrokerEncryption
           InCluster: true
       KafkaVersion: !Ref KafkaVersion
-      LoggingInfo: 
+      LoggingInfo:
         BrokerLogs:
           CloudWatchLogs:
             Enabled: true
             LogGroup: !Ref LogGroup
       NumberOfBrokerNodes: !Ref NumberOfBrokerNodes
 Outputs:
- ModuleId:
+  ModuleId:
     Value: 'msk-cluster'
   ModuleVersion:
     Value: '1.0.0'
