@@ -24,12 +24,12 @@ Resources:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
       Parameters:
-        VpcModule:
-        ClientSgModule:
-        KmsKeyModule: # optional
-        BastionModule: # optional
+        VpcModule: !GetAtt 'Vpc.Outputs.StackName' # required
+        ClientSgModule: !GetAtt 'ClientSg.Outputs.StackName' # required
+        KmsKeyModule: !GetAtt 'Key.Outputs.StackName' # optional
+        BastionModule: !GetAtt 'Bastion.Outputs.StackName' # optional
         AlertingModule: !GetAtt 'Alerting.Outputs.StackName' # optional
-        NumberOfBrokerNodes: '2' # optional
+        NumberOfBrokerNodes: !GetAtt 'Vpc.Outputs.NumberOfAvailabilityZones' # required
         KafkaVersion: '2.2.1' # optional
         InstanceType: 'kafka.t3.small' # optional
         MSKConfigurationArn: '' # optional
@@ -97,9 +97,9 @@ none
     <tr>
       <td>NumberOfBrokerNodes</td>
       <td>The number of broker nodes you want in the Amazon MSK cluster. You can submit an update to increase the number of broker nodes in a cluster.</td>
-      <td>2</td>
-      <td>no</td>
       <td></td>
+      <td>yes</td>
+      <td>Has to be a multiple of the private subnets in your VPC.</td>
     </tr>
     <tr>
       <td>KafkaVersion</td>

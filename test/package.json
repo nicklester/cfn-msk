@@ -6,6 +6,7 @@
     "@cfn-modules/test": "0.7.3",
     "@cfn-modules/vpc": "1.2.0",
     "@cfn-modules/client-sg": "1.0.0",
+    "@cfn-modules/kms-key": "1.2.1",
     "@cfn-modules/msk-cluster": "file:../"
   },
   "scripts": {

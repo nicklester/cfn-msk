@@ -33,9 +33,8 @@ Parameters:
     Type: String
     Default: ''
   NumberOfBrokerNodes:
-    Description: 'The number of broker nodes you want in the Amazon MSK cluster. You can submit an update to increase the number of broker nodes in a cluster.'
+    Description: 'The number of broker nodes you want in the Amazon MSK cluster. You can submit an update to increase the number of broker nodes in a cluster. Has to be a multiple of the private subnets in your VPC.'
     Type: Number
-    Default: '2'
   KafkaVersion:
     Description: 'The version of Apache Kafka.'
     Type: String

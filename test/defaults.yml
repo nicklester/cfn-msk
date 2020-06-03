@@ -23,4 +23,5 @@ Resources:
       Parameters:
         VpcModule: !GetAtt 'Vpc.Outputs.StackName'
         ClientSgModule: !GetAtt 'ClientSg.Outputs.StackName'
+        NumberOfBrokerNodes: !GetAtt 'Vpc.Outputs.NumberOfAvailabilityZones'
       TemplateURL: './node_modules/@cfn-modules/msk-cluster/module.yml'
