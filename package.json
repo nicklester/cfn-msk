@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "AWS MSK (Kafka) cluster using two or three availability zones with public and private subnets. Cloudwatch logging enabled by default.",
   "author": "Nicholas Lester",
+  "contributors": ["Michael Wittig <michael@widdix.de>"],
   "license": "Apache-2.0",
   "keywords": ["cfn-modules", "cfn-modules:ExposeArn"],
   "homepage": "https://github.com/cfn-modules",
@@ -14,8 +15,3 @@
     "url" : "https://github.com/cfn-modules/msk-cluster.git"
   }
 }
-
-
-
-
-
