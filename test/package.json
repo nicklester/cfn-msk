@@ -4,9 +4,9 @@
     "eslint": "6.6.0",
     "ava": "2.4.0",
     "@cfn-modules/test": "0.7.3",
-    "cfn-msk": "file:../",
-    "@cfn-modules/vpc": "1.1.1",
-    "@cfn-modules/client-sg": "1.0.0"
+    "@cfn-modules/vpc": "1.2.0",
+    "@cfn-modules/client-sg": "1.0.0",
+    "@cfn-modules/msk-cluster": "file:../"
   },
   "scripts": {
     "test": "eslint . && ava -c 4 *.js"

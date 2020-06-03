@@ -1,52 +1,50 @@
-# cfn-modules: AWS MSK
+[![Build Status](https://travis-ci.org/cfn-modules/msk-cluster.svg?branch=master)](https://travis-ci.org/cfn-modules/msk-cluster)
+[![NPM version](https://img.shields.io/npm/v/@cfn-modules/msk-cluster.svg)](https://www.npmjs.com/package/@cfn-modules/msk-cluster)
+
+# cfn-modules: AWS MSK cluster
 
 AWS MSK (Kafka Cluster) using two or three availability zones with public and private subnets. Cloudwatch logging enabled by default.
 
 ## Install
 
+> Install [Node.js and npm](https://nodejs.org/) first!
+
+```
+npm i @cfn-modules/kms-key
+```
 
 ## Usage
 
 ```
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Parameters: 
-  VpcStackName: 
-    Type: String
+Description: 'cfn-modules example'
 Resources:
-  MskClientSg:
+  Key:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
       Parameters:
-        VpcModule: !Ref VpcStackName
-      TemplateURL: './node_modules/@cfn-modules/client-sg/module.yml'
-  Msk:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      Parameters:
-        BrokerCount: 2
-        ClientSgModule: !GetAtt 'MskClientSg.Outputs.StackName'
-        VpcModule: !Ref VpcStackName
-        InstanceType: kafka.t3.small
-      TemplateURL: 'node_modules/cfn-msk/module.yml'
+        VpcModule:
+        ClientSgModule:
+        KmsKeyModule: # optional
+        BastionModule: # optional
+        AlertingModule: !GetAtt 'Alerting.Outputs.StackName' # optional
+        NumberOfBrokerNodes: '2' # optional
+        KafkaVersion: '2.2.1' # optional
+        InstanceType: 'kafka.t3.small' # optional
+        MSKConfigurationArn: '' # optional
+        MSKConfigurationNumber: '0' # optional
+        EBSVolumeSize: '1' # optional
+      TemplateURL: './node_modules/@cfn-modules/msk-cluster/module.yml'
 ```
-
-Once the stack has created you can obtain the Bootstrap Brokers by calling the AWS API:
-
-https://docs.aws.amazon.com/msk/latest/developerguide/msk-get-bootstrap-brokers.html
-
-e.g.
-
-* To obtain the ARN: 
-```$(aws2 cloudformation describe-stacks --stack-name <Stack Name> --query 'Stacks[0].Outputs[?OutputKey==`ClusterName`].OutputValue' --output text)```
-
-* To obtain the Bootstrap Brokers:
-```aws2 kafka get-bootstrap-brokers --cluster-arn <ARN obtained above>```
-
 
 ## Examples
 
-No examples supplied
+none
+
+## Related modules
+
+none
 
 ## Parameters
 
@@ -61,119 +59,140 @@ No examples supplied
     </tr>
   </thead>
   <tbody>
-		<tr>
-		  <td>VpcModule</td>
-		  <td>Stack name of <a href="https://www.npmjs.com/package/@cfn-modules/vpc">vpc</a> module</td>
-		  <td></td>
-		  <td>true</td>
-		  <td></td>
-		</tr>
-		<tr>
-	      <td>ClientSgModule</td>
-	      <td>Stack name of <a href="https://www.npmjs.com/package/@cfn-modules/client-sg">client-sg module</a> where traffic is allowed from on port 9092, 9095 and 2181 to the cluster</td>
-	      <td></td>
-	      <td>yes</td>
-	      <td></td>
-	    </tr>
-	    <tr>
-	      <td>KafkaVersion</td>
-	      <td>Version of Kafka Cluster to deploy</td>
-	      <td>2.2.1</td>
-	      <td></td>
-	      <td></td>
-	    </tr>
-	     <tr>
-	      <td>KmsKeyModule</td>
-	      <td><a href="https://github.com/cfn-modules/kms-key">kms-key</a> module to encrypt data in the cluster</td>
-	      <td></td>
-	      <td>false</td>
-	      <td></td>
-	    </tr>
-	    <tr>
-	      <td>BastionModule</td>
-	      <td><a href="https://github.com/cfn-modules/ssh-bastion">ssh-bastion</a> module to allow access over 9092 to the cluster</td>
-	      <td></td>
-	      <td>false</td>
-	      <td></td>
-	    </tr>
-	    <tr>
-		  <td>Use3Subnets</td>
-		  <td>If using a region/VPC with three private subnets you can set this to true</td>
-		  <td>false</td>
-		  <td>false</td>
-		  <td>false, true</td>
-		</tr>
-		<tr>
-		  <td>BrokerCount</td>
-		  <td>Number of Kafka Brokers to launch. Note this must be a multiple of number of private subnets in VPC</a></td>
-		  <td>2</td>
-		  <td>true</td>
-		  <td>A multiple of subnet counts (2/3)</td>
-		</tr>
-		<tr>
-		  <td>AlertingModule</td>
-		  <td>Stack name of <a href="https://github.com/cfn-modules/alerting">alerting</a> module</a></td>
-		  <td></td>
-		  <td>false</td>
-		  <td></td>
-		</tr>
-		<tr>
-		  <td>InstanceType</td>
-		  <td>Aws Msk <a href="https://aws.amazon.com/msk/pricing/">Instance type</a> to launch</td>
-		  <td>kafka.t3.small</td>
-		  <td>true</td>
-		  <td></td>
-		</tr>
-		<tr>
-		  <td>MskConfigurationArn</td>
-		  <td>Arn referencing specific <a href="https://docs.aws.amazon.com/msk/latest/developerguide/msk-configuration-operations.html">MskConfiguration</a></td>
-		  <td></td>
-		  <td>false</td>
-		  <td></td>
-		</tr>
-		<tr>
-		  <td>MskConfigurationNumber</td>
-		  <td>Msk Configuration version number</td>
-		  <td></td>
-		  <td>false</td>
-		  <td></td>
-		</tr>
-		<tr>
-		  <td>TlsClientAuthentication</td>
-		  <td>Enable Tls Client Authentication with broker</td>
-		  <td>0</td>
-		  <td>false</td>
-		  <td>1,0</td>
-		</tr>
-		<tr>
-		  <td>TlsArnList</td>
-		  <td>Tls Certificate Arn List. Requires Tlc Client Authentication to be 1/td>
-		  <td></td>
-		  <td>false</td>
-		  <td></td>
-		</tr>
-		<tr>
-		  <td>ClientBrokerEncryption</td>
-		  <td>Congigure client/broker data in transit encryption</td>
-		  <td>TLS_PLAINTEXT</td>
-		  <td>false</td>
-		  <td>TLS, PLAINTEXT, TLS_PLAINTEXT</td>
-		</tr>
-		<tr>
-		  <td>LogsRetentionInDays</td>
-		  <td>Number of days to retain Cloudwatch logs</td>
-		  <td>14</td>
-		  <td>false</td>
-		  <td>1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653</td>
-		</tr>
-	</tbody>
+    <tr>
+      <td>VpcModule</td>
+      <td>Stack name of <a href="https://www.npmjs.com/package/@cfn-modules/vpc">vpc module</a></td>
+      <td></td>
+      <td>yes</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>ClientSgModule</td>
+      <td>Stack name of <a href="https://www.npmjs.com/package/@cfn-modules/client-sg">client-sg module</a> where traffic is allowed from on port 9092, 9095 and 2181 to the cluster</td>
+      <td></td>
+      <td>yes</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>KmsKeyModule</td>
+      <td>Stack name of <a href="https://www.npmjs.com/package/@cfn-modules/kms-key">kms-key module</a> (only works in combination with Access := [Private, PublicRead])</td>
+      <td></td>
+      <td>no</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>BastionModule</td>
+      <td>Stack name of <a href="https://www.npmjs.com/search?q=keywords:cfn-modules:Bastion">module implementing Bastion</a></td>
+      <td></td>
+      <td>no</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>AlertingModule</td>
+      <td>Stack name of <a href="https://www.npmjs.com/package/@cfn-modules/alerting">alerting module</a></td>
+      <td></td>
+      <td>no</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>NumberOfBrokerNodes</td>
+      <td>The number of broker nodes you want in the Amazon MSK cluster. You can submit an update to increase the number of broker nodes in a cluster.</td>
+      <td>2</td>
+      <td>no</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>KafkaVersion</td>
+      <td>The version of Apache Kafka.</td>
+      <td>2.2.1</td>
+      <td>no</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>InstanceType</td>
+      <td>The type of Amazon EC2 instances to use for brokers.</td>
+      <td>kafka.t3.small</td>
+      <td>no</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>MSKConfigurationArn</td>
+      <td>Amazon Resource Name (ARN) of the MSK configuration to use.</td>
+      <td></td>
+      <td>no</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>MSKConfigurationNumber</td>
+      <td>Revision of the Amazon MSK configuration to use (required if MSKConfigurationArn is set).</td>
+      <td></td>
+      <td>no</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>EBSVolumeSize</td>
+      <td>The size in GiB of the EBS volume for the data drive on each broker node.</td>
+      <td>1</td>
+      <td>no</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>ClientBrokerEncryption</td>
+      <td>Indicates the encryption setting for data in transit between clients and brokers.</td>
+      <td>TLS</td>
+      <td>no</td>
+      <td>[TLS, PLAINTEXT, TLS_PLAINTEXT]</td>
+    </tr>
+    <tr>
+      <td>LogsRetentionInDays</td>
+      <td>Specifies the number of days you want to retain log events in the specified log group</td>
+      <td>14</td>
+      <td>no</td>
+      <td>[1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]</td>
+    </tr>
+  </tbody>
+</table>
+
+## Outputs
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Interface</th>
+      <th>Description</th>
+      <th>Exported?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>ModuleId</td>
+      <td>global</td>
+      <td>Id of the module</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>ModuleVersion</td>
+      <td>global</td>
+      <td>Version of the module</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>StackName</td>
+      <td>global</td>
+      <td>Name of the stack (used to pass module references)</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Arn</td>
+      <td>ExposeArn</td>
+      <td>Cluster ARN</td>
+      <td>yes</td>
+    </tr>
+  </tbody>
 </table>
 
 ## Limitations
 
-* At present only CloudWatch logging is enabled, nor is logging through Prometheus, but this is expected to be added in a subsequent version
-* Scalability. At present auto scaling is not provided by MSK service. Therefore this template will not support auto scaling.
-* There is no support for backups of an MSK Cluster.
-
-
-
+* Scalable: Auto scaling is not provided by MSK service. You have to increase the number of broker nodes to scale manually.
+* Secure: Does not backup/snapshot the data.
