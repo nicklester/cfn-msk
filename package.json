@@ -1,5 +1,5 @@
 {
-  "name": "msk-cluster",
+  "name": "@cfn-modules/msk-cluster",
   "version": "1.0.0",
   "description": "AWS MSK (Kafka) cluster using two or three availability zones with public and private subnets. Cloudwatch logging enabled by default.",
   "author": "Nicholas Lester",
