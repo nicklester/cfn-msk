@@ -10,7 +10,7 @@ AWS MSK (Kafka Cluster) using two or three availability zones with public and pr
 > Install [Node.js and npm](https://nodejs.org/) first!
 
 ```
-npm i @cfn-modules/kms-key
+npm i @cfn-modules/msk-cluster
 ```
 
 ## Usage
