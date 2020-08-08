@@ -1,6 +1,3 @@
-[![Build Status](https://travis-ci.org/cfn-modules/msk-cluster.svg?branch=master)](https://travis-ci.org/cfn-modules/msk-cluster)
-[![NPM version](https://img.shields.io/npm/v/@cfn-modules/msk-cluster.svg)](https://www.npmjs.com/package/@cfn-modules/msk-cluster)
-
 # cfn-modules: AWS MSK cluster
 
 AWS MSK (Kafka Cluster) using two or three availability zones with public and private subnets. Cloudwatch logging enabled by default.
