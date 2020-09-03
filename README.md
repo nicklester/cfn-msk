@@ -26,7 +26,6 @@ Resources:
         KmsKeyModule: !GetAtt 'Key.Outputs.StackName' # optional
         BastionModule: !GetAtt 'Bastion.Outputs.StackName' # optional
         AlertingModule: !GetAtt 'Alerting.Outputs.StackName' # optional
-        LogModule: !Ref LogGroup # optional
         NumberOfBrokerNodes: !GetAtt 'Vpc.Outputs.NumberOfAvailabilityZones' # required
         KafkaVersion: '2.2.1' # optional
         InstanceType: 'kafka.t3.small' # optional
@@ -88,13 +87,6 @@ none
     <tr>
       <td>AlertingModule</td>
       <td>Stack name of <a href="https://www.npmjs.com/package/@cfn-modules/alerting">alerting module</a></td>
-      <td></td>
-      <td>no</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>LogModule</td>
-      <td>Log Group <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-logs-loggroup.html">resource</a></td>
       <td></td>
       <td>no</td>
       <td></td>
