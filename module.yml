@@ -152,7 +152,7 @@ Resources:
         BrokerLogs:
           CloudWatchLogs:
             Enabled: true
-            LogGroup: !Ref LogModule
+            LogGroup: !Ref LogGroup
       NumberOfBrokerNodes: !Ref NumberOfBrokerNodes
 Outputs:
   ModuleId:
