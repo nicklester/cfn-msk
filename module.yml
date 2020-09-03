@@ -32,10 +32,6 @@ Parameters:
     Description: 'Optional but recommended stack name of alerting module.'
     Type: String
     Default: ''
-  LogModule:
-    Description: 'Custom supplied logging module.'
-    Type: String
-    Default: ''
   NumberOfBrokerNodes:
     Description: 'The number of broker nodes you want in the Amazon MSK cluster. You can submit an update to increase the number of broker nodes in a cluster. Has to be a multiple of the private subnets in your VPC.'
     Type: Number
@@ -73,12 +69,12 @@ Conditions:
   HasKmsKeyModule: !Not [!Equals [!Ref KmsKeyModule, '']]
   HasBastionModule: !Not [!Equals [!Ref BastionModule, '']]
   HasAlertingModule: !Not [!Equals [!Ref AlertingModule, '']]
-  HasLogModule: !Not [!Equals [!Ref LogModule, '']]
   HasMSKConfiguration: !Not [!Equals [!Ref MSKConfigurationArn, '']]
 Resources:
   LogGroup:
     Type: 'AWS::Logs::LogGroup'
     Properties:
+      LogGroupName: !Join ['', ['/aws/vendedlogs/cfn-modules-msk-', !Select [2, !Split ['/', !Ref 'AWS::StackId']]]]
       RetentionInDays: !Ref LogsRetentionInDays
   SecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
@@ -156,7 +152,7 @@ Resources:
         BrokerLogs:
           CloudWatchLogs:
             Enabled: true
-            LogGroup: !If [HasLogModule, !Ref LogModule, !Ref LogGroup ]
+            LogGroup: !Ref LogModule
       NumberOfBrokerNodes: !Ref NumberOfBrokerNodes
 Outputs:
   ModuleId:
