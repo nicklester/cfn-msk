@@ -74,6 +74,7 @@ Resources:
   LogGroup:
     Type: 'AWS::Logs::LogGroup'
     Properties:
+      LogGroupName: !Join ['', ['/aws/vendedlogs/cfn-modules-msk-', !Select [2, !Split ['/', !Ref 'AWS::StackId']]]]
       RetentionInDays: !Ref LogsRetentionInDays
   SecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
