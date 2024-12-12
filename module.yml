@@ -38,7 +38,7 @@ Parameters:
   KafkaVersion:
     Description: 'The version of Apache Kafka.'
     Type: String
-    Default: '2.2.1'
+    Default: '3.7.x'
   InstanceType:
     Description: 'The type of Amazon EC2 instances to use for brokers.'
     Type: String
